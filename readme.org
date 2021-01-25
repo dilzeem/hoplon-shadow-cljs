@@ -1,0 +1,146 @@
+* Introduction
+
+  So I have been meaning to learn about clojurescript for a while now, and have been putting it off.
+  This is my attempt to try and get something going, and understanding how to use clojure/clojurescript
+
+* Why Hoplon?
+  
+  While there are other frameworks out there, I really liked how simple hoplon seemed to be.
+  When looking at the [[https://github.com/hoplon/demos/tree/master/todoFRP][TODO mvc]] I could grasp it quite easily of what was going on.
+  I don't plan to do anything too complicated, and just wanted something simple to begin with.
+
+  With the react libraries/frameworks (reagent/reframe/rum) I wasn't interested in learning react and understanding how it worked too much.
+  But maybe it is something for the future.
+  
+
+* Shadow cljs
+
+  With Hoplon it seems like it was recommended to use [[https://github.com/boot-clj/boot][boot]] as the tool setup a new project, however it seemed like the tool wasn't being developed much anymore.
+  I also remember reading somewhere that the tool wasn't being used extensivley within the community.
+
+  I had heard of [[https://shadow-cljs.github.io/docs/UsersGuide.html][shadow-cljs]] and it seemd like a pretty popular tool. So I decided to give it ago.
+  There was also an excellent videos [[[https://www.youtube.com/watch?v=BZNJi5pP8fU][video 1]], [[https://www.youtube.com/watch?v=p61lhOvQg2Q&t=195s][video 2]]] about how to use the tool.
+  
+* Install shadow-cljs
+  
+  To get started with shadow-cljs first you need to make sure that you have Java and NPM installed
+  
+  #+begin_src shell
+  npm install -g shadow-cljs
+  #+end_src
+
+** Zamansky template
+
+   To get started I used the [[https://github.com/zamansky/shadow-cljs-template][template]] that Mike Zamansky created and made some changes to it.
+
+   Below is the ~shadow-cljs.edn~ which is where you configure how shadow-cljs. It also where you can specify your clojure dependencies. 
+   A lot of the configuration options are documented in the excellenct [[https://shadow-cljs.github.io/docs/UsersGuide.html#_usage][shadow-cljs documentation]].
+   
+  #+begin_src clojure
+;; shadow-cljs configuration
+{
+ ;; where the source files are located
+ :source-paths ["src"]
+
+ ;; setup the nrepl server to use for development
+ :nrepl {:port 9000}
+
+ ;; clojure dependencies. npm dependencies can be manage via package.json
+ :dependencies [[nrepl "0.8.3"]
+                [binaryage/devtools "1.0.2"]
+                [cider/piggieback "0.4.0"]
+                [cider/cider-nrepl "0.25.5"]
+                [org.clojure/clojure "1.10.0"]
+                [org.clojure/clojurescript "1.10.339"]
+                [hoplon/hoplon             "7.2.0"]]
+
+ :dev-http {9090 "target/"}
+
+ ;; can have multiple builds here
+ :builds {:app {:output-dir "target/"
+                :asset-path "."
+                :target     :browser
+                ;; hoplon here is what the file name will be
+                ;; main.page.index/main relates to your src folder structure
+                :modules    {:hoplon {:init-fn main.pages.index/main}}
+                ;; allows us to use the binaryage/devtools package to have better console message in chrome dev-tools
+                :devtools   {:after-load main.pages.index/init!
+                             :http-root  "target"
+                             :http-port  9090}}}
+ }
+
+  #+end_src
+
+   
+
+The ~package.json~ file is where we can configure how npm works and also the place where you can install your javascript dependencies.
+
+  
+  #+begin_src json
+{
+   "name": "trantor",
+   "version": "0.0.1",
+   "description": "A simple template for my shadow-cljs using hoplon webframework",
+   "main": "index.js",
+   "scripts": {
+      "test": "echo \"Error: no test specified\" && exit 1",
+      "tw": "tailwind build tw/style.css -- -o target/css/main.css",
+      "watch": "shadow-cljs watch app",
+      "watch:css": "onchange 'tw/*css' -- npm run tw"
+   },
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/dilzeem/trantor.git"
+   },
+   "keywords": [],
+   "author": "",
+   "license": "",
+   "bugs": {
+      "url": ""
+   },
+   "devDependencies": {
+      "onchange": "^6.1.0",
+      "tailwindcss": "^1.1.4",
+      "shadow-cljs": "2.11.4"
+   },
+   "dependencies": {
+      "jquery": "^3.3.1"
+   }
+}
+
+  #+end_src
+   
+
+  There in an [[https://www.youtube.com/watch?v=CWjUccpFvrg][excellent video]] explaining edn and how to use configure it for your clojure project.
+  It seems like this is the preferred tool to use to manage clojure projects. 
+  
+
+
+* Build the site
+
+Install dependencies:
+
+
+  #+begin_src shell
+npm install 
+  #+end_src
+
+
+Run Shadow CLJS dev server (and REPL):
+
+  #+begin_src shell
+npm run watch 
+  #+end_src
+
+You don't have to do the above because, it will automatcailly created when jacking in into the REPL.
+
+
+In another terminal, recompile Tailwind CSS if it changes:
+
+
+  #+begin_src shell
+npm run watch:css
+  #+end_src
+
+  
+  
